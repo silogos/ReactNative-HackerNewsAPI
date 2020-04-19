@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import StoriesScreen from '../screens/Stories';
+import StoryDetailScreen from '../screens/StoryDetail';
 
 const Stack = createStackNavigator();
 
@@ -16,11 +17,11 @@ export default function RootNavigation() {
                     options={{ title: 'Stories' }} 
                     component={StoriesScreen} 
                 />
-                {/* <Stack.Screen 
+                <Stack.Screen 
                     name="StoryDetail"  
                     options={{ title: 'Story Detail' }} 
                     component={StoryDetailScreen}
-                /> */}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     )

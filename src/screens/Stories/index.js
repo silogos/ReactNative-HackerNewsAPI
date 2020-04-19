@@ -5,6 +5,7 @@ import { useSafeArea } from 'react-native-safe-area-context';
 
 import Colors from '../../styles/Colors';
 import itemStore from '../../stores/itemStore';
+import * as Api from '../../services/api';
 import { Sizes, Styles } from '../../styles';
 
 import ListItem from './components/ListItem';
@@ -17,20 +18,22 @@ const MENUS = [
 	{ key: 'ASK_STORIES', title: 'Ask', url: 'askstories' },
 	{ key: 'JOB_STORIES', title: 'Job', url: 'jobstories' }
 ]
+const NUM_RENDER = 12
 
 function StoriesScreen({ navigation }) {
 	const insets = useSafeArea();	
 	const [selectedMenu, setSelectedMenu] = useState(MENUS[0]);	
 	let {
-		state: state,
-		action: { setLoading, setDataLoading, _getKeys, _getData }
+		state,
+		action: { setKeys, setLoading, setData, setDataLoading, resetData }
 	} = itemStore(selectedMenu)	
-	console.log(selectedMenu.name, state)
 	
 	async function _refresh() {
 		try {
 			setLoading(true)
-			await _getKeys()
+			resetData()
+			let response = await Api.getKeys(selectedMenu.url)
+			setKeys(response.data)
 		} catch (err) {
 			alert(err);
 		} finally {
@@ -40,9 +43,23 @@ function StoriesScreen({ navigation }) {
 
 	async function loadData(first = false) {
 		try {
-			if(!first && (state.loading || state.data.loading || state.data.loadmore)) return false
+			console.log({
+				loading: state.loading,
+				loadingData: state.data.loading,
+				loadmoreData: state.data.loadmore
+			})
+			if(!first && (state.loading || state.data.loading || !state.data.loadmore)) return false
 			setDataLoading(true)
-			await _getData()
+			let firstItem = (state.data.page - 1) * NUM_RENDER
+			let keysList = state.keys.slice(firstItem, firstItem + NUM_RENDER)
+			let response = await Promise.all(keysList.map((key) => Api.getItem(key)))
+			let newData = response.map((e) => e.data).filter((e) => !e.deleted)
+
+			setData({
+				items: [...state.data.items, ...newData],
+				page: state.data.page + 1,
+				loadmore: state.keys.length >= NUM_RENDER * state.data.page
+			})
 		} catch (err) {
 			alert(err);
 		} finally {

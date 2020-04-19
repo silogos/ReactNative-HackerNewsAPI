@@ -1,8 +1,6 @@
 import React, { useReducer }  from 'react';
-import * as api from '../services/api';
 
 function itemStore(stories, initState = {}) {
-	const NUM_RENDER = 12
 	const initialState = {
 		keys: [],
 		data: {
@@ -18,7 +16,7 @@ function itemStore(stories, initState = {}) {
 		console.group(`${stories.key} reducer`)
 		console.log('STATES: ', state)
 		console.log(action.type, action.payload)
-		console.groupEnd(`${stories.name} reducer`)
+		console.groupEnd()
     
 		switch (action.type) {
 			case 'SET_LOADING':
@@ -38,43 +36,31 @@ function itemStore(stories, initState = {}) {
 	
 	const [state, dispatch] = useReducer(reducer, initialState);
 
-	async function _getKeys() {
-		dispatch({ type: 'RESET_DATA' })
-		let response = await api.getKeys(stories.url)
-		dispatch({ type: 'SET_KEYS', payload: response.data })
-		return response
-	}	
 
-	async function _getData() {
-		let firstItem = state.data.page * NUM_RENDER
-		let keysList = state.keys.slice(firstItem, firstItem + NUM_RENDER)
-		let response = await Promise.all(keysList.map((key) => api.getItem(key)))
-		let newData = response.map((e) => e.data)
-
-		dispatch({ 
-			type: 'SET_DATA', 
-			payload: {
-				items: [...state.data.items, ...newData],
-				page: state.data.page + 1,
-				loadmore: state.keys.length >= NUM_RENDER * state.data.page
-			}
-		})
-
-		return newData
+	function setKeys(payload) {
+		dispatch({ type: 'SET_KEYS', payload: payload })
 	}
 
 	function setLoading(active) {
 		dispatch({ type: 'SET_LOADING', payload: active })
 	}
 
+	function setData(payload) {
+		dispatch({ type: 'SET_DATA', payload: payload })
+	}
+
 	function setDataLoading(active) {
 		dispatch({ type: 'SET_DATA_LOADING', payload: active })
+	}
+
+	function resetData() {
+		dispatch({ type: 'RESET_DATA' })
 	}
 
 	return {
 		state: state,
 		dispatch: dispatch,
-		action: { setLoading, setDataLoading, _getKeys, _getData }
+		action: { setKeys, setLoading, setData, setDataLoading, resetData }
 	};
 }
 
