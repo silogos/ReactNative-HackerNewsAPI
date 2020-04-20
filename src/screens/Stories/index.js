@@ -53,7 +53,7 @@ function StoriesScreen({ navigation }) {
 			let firstItem = (state.data.page - 1) * NUM_RENDER
 			let keysList = state.keys.slice(firstItem, firstItem + NUM_RENDER)
 			let response = await Promise.all(keysList.map((key) => Api.getItem(key)))
-			let newData = response.map((e) => e.data).filter((e) => !e.deleted)
+			let newData = response.map((e) => e.data).filter((e) => (!e.deleted || !e.dead))
 
 			setData({
 				items: [...state.data.items, ...newData],

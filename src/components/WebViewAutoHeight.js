@@ -21,6 +21,7 @@ export default function WebViewAutoHeight({ content, style, maxHeight }) {
                             padding: 0;
                             margin: 0;
                             word-break: break-word !important;
+                            font-size: ${Sizes.fontSizeBase}px;
                         }
                         body {
                             max-width: 100%;
@@ -59,6 +60,7 @@ export default function WebViewAutoHeight({ content, style, maxHeight }) {
           ref={webView}
           style={{ height: _height, backgroundColor: 'transparent' }} 
           source={{ html: frame(content) }}
+          scrollEnabled={false}
           onNavigationStateChange={onShouldStartLoadWithRequest}
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           onLoad={() =>
