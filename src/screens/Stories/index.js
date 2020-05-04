@@ -53,8 +53,7 @@ function StoriesScreen({ navigation }) {
 			let firstItem = (state.data.page - 1) * NUM_RENDER
 			let keysList = state.keys.slice(firstItem, firstItem + NUM_RENDER)
 			let response = await Promise.all(keysList.map((key) => Api.getItem(key)))
-			let newData = response.map((e) => e.data).filter((e) => (!e.deleted || !e.dead))
-
+			let newData = response.map((e) => e.data).filter((e) => (e || !e.deleted || !e.dead))
 			setData({
 				items: [...state.data.items, ...newData],
 				page: state.data.page + 1,
@@ -115,7 +114,7 @@ function StoriesScreen({ navigation }) {
 					</View>
 				)}
 				renderItem={(props) => <ListItem goTo={goTo} {...props} /> }
-				onEndReachedThreshold={0.7}
+				onEndReachedThreshold={.1}
 				onEndReached={loadData}
 				refreshControl={<RefreshControl refreshing={state.loading} onRefresh={_refresh} />}
 			/>
